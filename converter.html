@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STL Tags Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 400;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .panel-label {
+            background: #34495e;
+            color: white;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        textarea {
+            flex: 1;
+            width: 100%;
+            padding: 20px;
+            border: none;
+            outline: none;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: none;
+            background: #fafafa;
+        }
+
+        #inputText {
+            background: white;
+        }
+
+        #outputText {
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .controls {
+            padding: 15px 20px;
+            background: #ecf0f1;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-copy {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-copy:hover {
+            background: #229954;
+        }
+
+        .btn-download {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-download:hover {
+            background: #2980b9;
+        }
+
+        .btn-clear {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #c0392b;
+        }
+
+        @media (max-width: 968px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>STL Tags Converter - Old Framework → New Framework</h1>
+    </div>
+    
+    <div class="container">
+        <div class="panel">
+            <div class="panel-label">Old Framework (Input)</div>
+            <textarea id="inputText" placeholder="Paste your old framework HTML here..."></textarea>
+            <div class="controls">
+                <button class="btn-clear" onclick="clearInput()">Clear</button>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-label">New Framework (Output)</div>
+            <textarea id="outputText" placeholder="Converted HTML will appear here..." readonly></textarea>
+            <div class="controls">
+                <button class="btn-copy" onclick="copyOutput()">Copy</button>
+                <button class="btn-download" onclick="downloadOutput()">Download</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mapping from old tag names/types to new theme_prop names
+        const tagMapping = {
+            'CMResultsAdUrl_font-size': 'ad_url_font_size',
+            'CMResultsAdUrl_color': 'ad_url_font_color',
+            'CMResultsAdUrl_font-family': 'ad_url_font-family',
+            'CMResultsAdTitle_font-size': 'ad_title_font_size',
+            'CMResultsAdTitle_color': 'ad_title_color',
+            'CMResultsAdTitle_font-family': 'ad_title_font_family',
+            'CMResultsAdDescription_font-size': 'ad_desc_font_size',
+            'CMResultsAdDescription_color': 'ad_desc_font_color',
+            'CMResultsAdDescription_font-family': 'ad_desc_font_family',
+            'ResultsAdDescription_font-size': 'ad_desc_desktop_font_size',
+            'CustomResultsAdUrlBackGround_color': 'ad_background',
+            'CustomResultsAdUrlBorder_color': 'ad_border_color',
+            'CMContentArea_color': 'body_background',
+            'HeaderArea_color': 'header_background',
+            'AdBorder_color': 'cta_border_color',
+            'CMAdsLabel_color': 'cta_background',
+            'Bullet_font-size': 'cta_text_font_size',
+            'BulletText_color': 'cta_text_font_color',
+            'BulletShape_color': 'chevron_color',
+            'KeywordsHoverUnderline_checkbox': 'title_hover_underline',
+            'KeywordArea_color': 'keyword_link_color',
+            'relcontspan_font-family': 'relcont_span_font_family',
+            'HeaderText_font-size': 'header_text_font_size',
+            'HeaderText_color': 'header_text_color',
+            'HeaderText_textCase': 'header_text_case',
+            'HeaderText_tallness': 'header_border_width',
+            'HeaderText_border-style': 'header_border_style',
+            'CMResultsAdUrl_font-size_desktop': 'ad_url_desktop_font_size',
+            'CMResultsAdTitle_font-size_desktop': 'ad_title_desktop_font_size',
+            'AdBorder_color_desktop': 'cta_border_desktop_color',
+            'InnerBorder_color': 'ad_url_font_color',
+            'CallToAction_content': 'cta_text'
+        };
+
+        // Function to convert old tags to new format
+        function convertTag(match, name, value, type) {
+            const key = `${name}_${type}`;
+            let newPropName = tagMapping[key];
+            
+            // If no mapping found, create a default name
+            if (!newPropName) {
+                // Convert CamelCase to snake_case
+                newPropName = name
+                    .replace(/([A-Z])/g, '_$1')
+                    .toLowerCase()
+                    .replace(/^_/, '')
+                    .replace(/_+/g, '_') + '_' + type.toLowerCase();
+            }
+            
+            return `<tag:theme_prop:${newPropName} default="${value}" />`;
+        }
+
+        // Main conversion function
+        function convertTags() {
+            const input = document.getElementById('inputText').value;
+            
+            if (!input.trim()) {
+                document.getElementById('outputText').value = '';
+                return;
+            }
+
+            let output = input;
+            
+            // Convert <tagd:style name="..." value="..." type="..." /> to <tag:theme_prop:... default="..." />
+            output = output.replace(
+                /<tagd:style\s+name=["']([^"']+)["']\s+value=["']([^"']*)["']\s+type=["']([^"']+)["']\s*\/>/gi,
+                convertTag
+            );
+
+            // Also handle tags with different attribute order
+            output = output.replace(
+                /<tagd:style\s+type=["']([^"']+)["']\s+name=["']([^"']+)["']\s+value=["']([^"']*)["']\s*\/>/gi,
+                (match, type, name, value) => convertTag(match, name, value, type)
+            );
+
+            // Clean up: ensure tags don't have excessive line breaks around them
+            output = output.replace(/\s*\n\s*(<tag:[^>]+>)\s*\n\s*/g, ' $1 ');
+            output = output.replace(/(<tag:[^>]+>)\s*\n\s*/g, '$1 ');
+
+            document.getElementById('outputText').value = output;
+        }
+
+        // Auto-convert on input
+        let convertTimeout;
+        document.getElementById('inputText').addEventListener('input', function() {
+            clearTimeout(convertTimeout);
+            convertTimeout = setTimeout(convertTags, 300);
+        });
+
+        // Clear input
+        function clearInput() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('outputText').value = '';
+        }
+
+        // Copy output to clipboard
+        function copyOutput() {
+            const output = document.getElementById('outputText');
+            output.select();
+            document.execCommand('copy');
+            
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.style.background = '#229954';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+            }, 1000);
+        }
+
+        // Download output as file
+        function downloadOutput() {
+            const output = document.getElementById('outputText').value;
+            if (!output.trim()) {
+                alert('No output to download! Please paste HTML in the input box first.');
+                return;
+            }
+            
+            const blob = new Blob([output], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'converted_framework.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
