@@ -9,24 +9,6 @@ A simple tool to convert old framework STL tags to new framework format.
 - File upload support
 - Download converted HTML
 
-## Installation
-
-1. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-## Usage
-
-### Streamlit App (Recommended)
-
-Run the Streamlit app:
-```bash
-streamlit run streamlit_app.py
-```
-
-Then open your browser to the URL shown (usually http://localhost:8501)
-
 ### HTML Version
 
 Alternatively, open `converter.html` in your web browser.
@@ -38,3 +20,4 @@ The converter automatically transforms:
 - Into: `<tag:theme_prop:... default="..." />`
 
 All conversions happen automatically as you type or paste HTML.
+
