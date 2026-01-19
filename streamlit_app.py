@@ -53,7 +53,7 @@ def convert_tag(match, name, value, type):
         # Convert CamelCase to snake_case
         new_prop_name = re.sub(r'([A-Z])', r'_\1', name).lower().lstrip('_').replace('__', '_') + '_' + type.lower()
     
-    return f'<tag:theme_prop:{new_prop_name} default="{value}" />'
+    return f'<theme_prop:{new_prop_name} default="{value}" />'
 
 def get_context_suffix(context_before, css_property=None):
     """Get context suffix based on surrounding code"""
@@ -94,7 +94,7 @@ def get_context_suffix(context_before, css_property=None):
 
 def find_duplicate_props(output):
     """Find all prop names that appear more than once"""
-    prop_pattern = r'<tag:theme_prop:([^>\s]+)\s+default=["\']([^"\']*)["\']\s*/>'
+    prop_pattern = r'<theme_prop:([^>\s]+)\s+default=["\']([^"\']*)["\']\s*/>'
     matches = list(re.finditer(prop_pattern, output))
     
     # Group by prop name
@@ -145,7 +145,7 @@ def rename_duplicates(output, original_html):
     
     # Find all converted tags in order
     converted_tags = []
-    for match in re.finditer(r'<tag:theme_prop:([^>\s]+)\s+default=["\']([^"\']*)["\']\s*/>', output):
+    for match in re.finditer(r'<theme_prop:([^>\s]+)\s+default=["\']([^"\']*)["\']\s*/>', output):
         converted_tags.append({
             'match': match,
             'prop_name': match.group(1),
@@ -196,7 +196,7 @@ def rename_duplicates(output, original_html):
             
             # Replace this occurrence
             old_tag = occ['full_match']
-            new_tag = old_tag.replace(f'<tag:theme_prop:{prop_name}', f'<tag:theme_prop:{new_prop_name}')
+            new_tag = old_tag.replace(f'<theme_prop:{prop_name}', f'<theme_prop:{new_prop_name}')
             all_replacements.append((occ['position'], old_tag, new_tag))
     
     # Sort by position (reverse order) and replace
@@ -214,7 +214,7 @@ def convert_tags(input_html):
     original_html = input_html  # Keep original for context detection
     output = input_html
     
-    # PASS 1: Convert <tagd:style name="..." value="..." type="..." /> to <tag:theme_prop:... default="..." />
+    # PASS 1: Convert <tagd:style name="..." value="..." type="..." /> to <theme_prop:... default="..." />
     output = re.sub(
         r'<tagd:style\s+name=["\']([^"\']+)["\']\s+value=["\']([^"\']*)["\']\s+type=["\']([^"\']+)["\']\s*/>',
         lambda m: convert_tag(m.group(0), m.group(1), m.group(2), m.group(3)),
@@ -283,7 +283,7 @@ def is_color_value(value):
 
 def extract_theme_props(html_content):
     """Extract all theme_prop tags and their values"""
-    pattern = r'<tag:theme_prop:([^>\s]+)\s+default=["\']([^"\']*)["\']\s*/>'
+    pattern = r'<theme_prop:([^>\s]+)\s+default=["\']([^"\']*)["\']\s*/>'
     matches = re.findall(pattern, html_content)
     
     props = []
@@ -360,8 +360,8 @@ def replace_theme_props_with_values(html_content):
     
     output = html_content
     
-    # Replace <tag:theme_prop:... default="..." /> with just the value
-    pattern = r'<tag:theme_prop:[^>\s]+\s+default=["\']([^"\']*)["\']\s*/>'
+    # Replace <theme_prop:... default="..." /> with just the value
+    pattern = r'<theme_prop:[^>\s]+\s+default=["\']([^"\']*)["\']\s*/>'
     output = re.sub(pattern, r'\1', output)
     
     return output
@@ -511,7 +511,7 @@ with tab2:
         value="",
         height=200,
         key="editor_input",
-        placeholder="Paste HTML containing <tag:theme_prop:... default=\"...\" /> tags here..."
+        placeholder="Paste HTML containing <theme_prop:... default=\"...\" /> tags here..."
     )
     
     # Button to load and extract properties
@@ -653,8 +653,8 @@ with tab2:
                 
                 for prop_name, new_value in st.session_state.edited_values.items():
                     # Replace the specific theme_prop tag with the new value
-                    pattern = f'<tag:theme_prop:{re.escape(prop_name)}\\s+default=["\'][^"\']*["\']\\s*/>'
-                    replacement = f'<tag:theme_prop:{prop_name} default="{new_value}" />'
+                    pattern = f'<theme_prop:{re.escape(prop_name)}\\s+default=["\'][^"\']*["\']\\s*/>'
+                    replacement = f'<theme_prop:{prop_name} default="{new_value}" />'
                     modified_html = re.sub(pattern, replacement, modified_html)
                 
                 # Store modified HTML
